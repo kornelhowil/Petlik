@@ -47,8 +47,7 @@ int main(void)
 			interpreter(m_code, variables);
 			free(m_code);
 	    }
-	    else
-	    	print(variables[petlik[1] - 'a']);
+	    else print(variables[petlik[1] - 'a']);
 		free(petlik);
 	}
 	for (int i = 0; i < NO_VAR; i++)
