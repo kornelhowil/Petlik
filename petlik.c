@@ -16,13 +16,11 @@ typedef struct {
 	int type;
 	int arg1;
 	int arg2;
-} instruction;
-/* Wczytywanie danych */
-char *read(int *length);
+} inst;
 /* Funkcje kompilatora */
-instruction *compiler(char *petlik, int length);
+inst *compiler(char *petlik, int length);
 bool optimal(int *i, char *petlik, int length);
-int compile(int *i, int j, char *petlik, instruction *m_code, int length);
+int compile(int *i, int j, char *petlik, inst *m_code, int length);
 /* Funkcje interpretera */
 var *init();
 void print(var a);
@@ -31,7 +29,7 @@ void inc(var *var1);
 void add(var *var1, var *var2);
 void clr(var *var1);
 void jmp(int index, int *i);
-void interpreter(instruction *m_code, var *variables);
+void interpreter(inst *m_code, var *variables);
 /* Główny program */
 int main(void)
 {	
@@ -39,69 +37,28 @@ int main(void)
 	int c;
 	while((c = getchar()) != EOF) {
 		ungetc(c, stdin);
-		int length; /* dlugosc kodu petlik */
-	    char *petlik = read(&length); /* wczytywanie kodu petlik */
-
+		size_t length; /* dlugosc kodu petlik */
+		char *petlik;
+	    //char *petlik = read(&length); /* wczytywanie kodu petlik */
+	    getline(&petlik,&length,stdin);
 	    if (petlik[0] != '=') {
-	    	instruction *m_code = compiler(petlik, length);
-	
-			int i = 0;
-			while(m_code[i].type != HLT) {
-				if (m_code[i].type == INC)
-					printf("%d | %s %c \n", i, "INC", m_code[i].arg1 + 'a');
-				else if (m_code[i].type == ADD)
-					printf("%d | %s %c %c\n", i, "ADD", m_code[i].arg1 + 'a', m_code[i].arg2 + 'a');
-				else if (m_code[i].type == CLR)
-					printf("%d | %s %c \n", i, "CLR", m_code[i].arg1 + 'a');
-				else if (m_code[i].type == JMP)
-					printf("%d | %s %d \n", i, "JMP", m_code[i].arg1);
-				else if (m_code[i].type == DJZ)
-					printf("%d | %s %c %d\n", i, "DJZ", m_code[i].arg1 + 'a', m_code[i].arg2);
-				i++;
-			}
-			printf("%d | %s\n", i, "HLT");
-			printf("----------------------\n");
-
+	    	inst *m_code = compiler(petlik, length);
 			interpreter(m_code, variables);
-
 			free(m_code);
 	    }
-	    else {
-	    	printf("Drukowanko\n");
-	    	printf("----------------------\n");
-	    	//print(variables[petlik[1] - 'a']);
-	    }
-		free(petlik);
+	    else
+	    	print(variables[petlik[1] - 'a']);
+		//free(petlik);
 	}
 	for (int i = 0; i < NO_VAR; i++)
-				free(variables[i].digits);
-		free(variables);
+		free(variables[i].digits);
+	free(variables);
     return 0;
 }
-/* Wczytywanie kodu pętlik */
-char *read(int *length) 
-{
-    char *petlik = NULL;
-    int size = 0;
-    int c; //char
-    for (*length = 0; (c = getchar()) != '\n'; *length += 1) {
-        if (*length == size) {
-            size = 2 * size + 1;
-            petlik = realloc(petlik, (size_t)size * sizeof(char));
-        }
-        petlik[*length] = (char)c;
-    }
-    if (*length == size) {
-        size = 2 * size + 1;
-        petlik = realloc(petlik, (size_t)size * sizeof(char));
-    }
-    petlik[*length] = (char)c;
-    return petlik;
-}
 /* Zwraca kod programu przetłumaczony na język maszyny wirtualnej */
-instruction *compiler(char *petlik, int length)
+inst *compiler(char *petlik, int length)
 {
-	instruction *m_code = malloc((size_t)(length + 1) * sizeof(instruction));
+	inst *m_code = malloc((size_t)(length + 1) * sizeof(inst));
 	int index = 0;
 	int end = compile(&index, 0, petlik, m_code, length);
 	m_code[end].type = HLT;
@@ -123,13 +80,12 @@ bool optimal(int *i, char *petlik, int length)
 	return false;
 }
 /* Kompiluje kod pętlika */
-int compile(int *i, int j, char *petlik, instruction *m_code, int length)
+int compile(int *i, int j, char *petlik, inst *m_code, int length)
 {	
 	while (*i < length && petlik[*i] != ')') {
 		if(petlik[*i] == '(') {
 			*i += 2;
 			bool opt = optimal(i, petlik, length);
-
 			if (opt == false) {
 				m_code[j].type = DJZ;
 				m_code[j].arg1 = petlik[*i - 1] - 'a';
@@ -269,7 +225,7 @@ void djz(var *var1, int index, int *i)
 		*i = index;
 }
 /* interpreter */
-void interpreter(instruction *m_code, var *variables)
+void interpreter(inst *m_code, var *variables)
 {
 	int i = 0;
 	while (m_code[i].type != HLT) {
