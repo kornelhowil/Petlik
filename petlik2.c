@@ -1,10 +1,13 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-/* Ilośc zmiennych */
-#define NO_VAR 26
-#define BASE 10000
+/* Stałe */
+#define NO_VAR 26 /* Ilośc zmiennych */
+#define BASE 10000 /* Podstawa systemu liczbowego  */
+#define FVAR 'a' /* Znak pierwszej zmiennej */
+#define BEGLOOP '(' /* Znak początku pętli */
+#define ENDLOOP ')' /* Znak końca pętli*/
+#define PRT '=' /* Znak wypisania zmiennej */
 /* Instrukcje maszyny wirtualnej */
 enum { INC, ADD, CLR, JMP, DJZ, HLT };
 /* Zmienna języka pętlik w systemie o podstawie 1000 */
@@ -42,12 +45,12 @@ int main(void)
 		ungetc(c, stdin);
 		int length; /* dlugosc kodu petlik */
 	    char *petlik = read(&length); /* wczytywanie kodu petlik */
-	    if (petlik[0] != '=') {
+	    if (petlik[0] != PRT) {
 	    	inst *m_code = compiler(petlik, length);
 			interpreter(m_code, variables);
 			free(m_code);
 	    }
-	    else print(variables[petlik[1] - 'a']);
+	    else print(variables[petlik[1] - FVAR]);
 		free(petlik);
 	}
 	for (int i = 0; i < NO_VAR; i++)
@@ -90,9 +93,9 @@ bool optimal(int *i, char *petlik, int length)
 	int index = *i;
 	char arg = petlik[index - 1];
 	while (index < length) {
-		if (petlik[index] == '(' || petlik[index] == arg)
+		if (petlik[index] == BEGLOOP || petlik[index] == arg)
 			return false;
-		else if (petlik[index] == ')') 
+		else if (petlik[index] == ENDLOOP) 
 			return true;
 		else
 			index++;
@@ -102,13 +105,13 @@ bool optimal(int *i, char *petlik, int length)
 /* Kompiluje kod pętlika */
 int compile(int *i, int j, char *petlik, inst *m_code, int length)
 {	
-	while (*i < length && petlik[*i] != ')') {
-		if(petlik[*i] == '(') {
+	while (*i < length && petlik[*i] != ENDLOOP) {
+		if(petlik[*i] == BEGLOOP) {
 			*i += 2;
 			bool opt = optimal(i, petlik, length);
 			if (opt == false) {
 				m_code[j].type = DJZ;
-				m_code[j].arg1 = petlik[*i - 1] - 'a';
+				m_code[j].arg1 = petlik[*i - 1] - FVAR;
 				int end = compile(i, j + 1, petlik, m_code, length);
 				m_code[j].arg2 = end + 1;
 				m_code[end].type = JMP;
@@ -118,22 +121,22 @@ int compile(int *i, int j, char *petlik, inst *m_code, int length)
 			}
 			else {
 				int arg2 = petlik[*i - 1];
-				while (petlik[*i] != ')') {
+				while (petlik[*i] != ENDLOOP) {
 					m_code[j].type = ADD;
-					m_code[j].arg1 = petlik[*i] - 'a';
-					m_code[j].arg2 = arg2 - 'a'; 
+					m_code[j].arg1 = petlik[*i] - FVAR;
+					m_code[j].arg2 = arg2 - FVAR; 
 					*i += 1;
 					j++;
 				}
 				m_code[j].type = CLR;
-				m_code[j].arg1 = arg2 - 'a'; 
+				m_code[j].arg1 = arg2 - FVAR; 
 				*i += 1;
 				j++;
 			}
 		}
 		else {
 			m_code[j].type = INC;
-			m_code[j].arg1 = petlik[*i] - 'a';
+			m_code[j].arg1 = petlik[*i] - FVAR;
 			*i += 1;
 			j++;
 		}
