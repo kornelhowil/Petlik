@@ -18,6 +18,8 @@ typedef struct {
 	int arg1;
 	int arg2;
 } inst;
+/* Wczytywanie danych */
+char *read(int *length);
 /* Funkcje kompilatora */
 inst *compiler(char *petlik, int length);
 bool optimal(int *i, char *petlik, int length);
@@ -38,11 +40,8 @@ int main(void)
 	int c;
 	while((c = getchar()) != EOF) {
 		ungetc(c, stdin);
-		size_t l = 0;
-		char *petlik = NULL;
-	    //char *petlik = read(&length); /* wczytywanie kodu petlik */
-	    getline(&petlik, &l, stdin);
-	    int length = (int)l; /* dlugosc kodu petlik */
+		int length; /* dlugosc kodu petlik */
+	    char *petlik = read(&length); /* wczytywanie kodu petlik */
 	    if (petlik[0] != '=') {
 	    	inst *m_code = compiler(petlik, length);
 			interpreter(m_code, variables);
@@ -56,6 +55,26 @@ int main(void)
 		free(variables[i].digits);
 	free(variables);
     return 0;
+}
+/* Wczytywanie kodu pętlik */
+char *read(int *length) 
+{
+    char *petlik = NULL;
+    int size = 0;
+    int c; //char
+    for (*length = 0; (c = getchar()) != '\n'; *length += 1) {
+        if (*length == size) {
+            size = 2 * size + 1;
+            petlik = realloc(petlik, (size_t)size * sizeof(char));
+        }
+        petlik[*length] = (char)c;
+    }
+    if (*length == size) {
+        size = 2 * size + 1;
+        petlik = realloc(petlik, (size_t)size * sizeof(char));
+    }
+    petlik[*length] = (char)c;
+    return petlik;
 }
 /* Zwraca kod programu przetłumaczony na język maszyny wirtualnej */
 inst *compiler(char *petlik, int length)
