@@ -38,8 +38,8 @@ int main(void)
 	int c;
 	while((c = getchar()) != EOF) {
 		ungetc(c, stdin);
-		size_t l;
-		char *petlik;
+		size_t l = 0;
+		char *petlik = NULL;
 	    //char *petlik = read(&length); /* wczytywanie kodu petlik */
 	    getline(&petlik, &l, stdin);
 	    int length = (int)l; /* dlugosc kodu petlik */
