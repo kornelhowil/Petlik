@@ -44,32 +44,11 @@ int main(void)
 
 	    if (petlik[0] != '=') {
 	    	instruction *m_code = compiler(petlik, length);
-	
-			int i = 0;
-			while(m_code[i].type != HLT) {
-				if (m_code[i].type == INC)
-					printf("%d | %s %c \n", i, "INC", m_code[i].arg1 + 'a');
-				else if (m_code[i].type == ADD)
-					printf("%d | %s %c %c\n", i, "ADD", m_code[i].arg1 + 'a', m_code[i].arg2 + 'a');
-				else if (m_code[i].type == CLR)
-					printf("%d | %s %c \n", i, "CLR", m_code[i].arg1 + 'a');
-				else if (m_code[i].type == JMP)
-					printf("%d | %s %d \n", i, "JMP", m_code[i].arg1);
-				else if (m_code[i].type == DJZ)
-					printf("%d | %s %c %d\n", i, "DJZ", m_code[i].arg1 + 'a', m_code[i].arg2);
-				i++;
-			}
-			printf("%d | %s\n", i, "HLT");
-			printf("----------------------\n");
-
 			interpreter(m_code, variables);
-
 			free(m_code);
 	    }
 	    else {
-	    	printf("Drukowanko\n");
-	    	printf("----------------------\n");
-	    	//print(variables[petlik[1] - 'a']);
+	    	print(variables[petlik[1] - 'a']);
 	    }
 		free(petlik);
 	}
@@ -79,7 +58,7 @@ int main(void)
     return 0;
 }
 /* Wczytywanie kodu pętlik */
-char *read(size_t *length) 
+char *read(*length) 
 {
     char *petlik = NULL;
     int size = 0;

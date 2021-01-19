@@ -38,10 +38,11 @@ int main(void)
 	int c;
 	while((c = getchar()) != EOF) {
 		ungetc(c, stdin);
-		int length; /* dlugosc kodu petlik */
+		size_t l;
 		char *petlik;
 	    //char *petlik = read(&length); /* wczytywanie kodu petlik */
-	    getline(&petlik,(size_t*)&length,stdin);
+	    getline(&petlik, &l, stdin);
+	    int length = (int)l; /* dlugosc kodu petlik */
 	    if (petlik[0] != '=') {
 	    	inst *m_code = compiler(petlik, length);
 			interpreter(m_code, variables);
