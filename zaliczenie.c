@@ -20,9 +20,9 @@ typedef struct {
 /* Wczytywanie danych */
 char *read(int *length);
 /* Funkcje kompilatora */
-instruction *compiler(char *petlik, int length);
-bool optimal(int *i, char *petlik, int length);
-int compile(int *i, int j, char *petlik, instruction *m_code, int length);
+instruction *compiler(char *petlik, size_t length);
+bool optimal(int *i, char *petlik, size_t length);
+int compile(int *i, int j, char *petlik, instruction *m_code, size_t length);
 /* Funkcje interpretera */
 var *init();
 void print(var a);
@@ -79,7 +79,7 @@ int main(void)
     return 0;
 }
 /* Wczytywanie kodu pętlik */
-char *read(int *length) 
+char *read(size_t *length) 
 {
     char *petlik = NULL;
     int size = 0;
@@ -99,7 +99,7 @@ char *read(int *length)
     return petlik;
 }
 /* Zwraca kod programu przetłumaczony na język maszyny wirtualnej */
-instruction *compiler(char *petlik, int length)
+instruction *compiler(char *petlik, size_t length)
 {
 	instruction *m_code = malloc((size_t)(length + 1) * sizeof(instruction));
 	int index = 0;
@@ -108,7 +108,7 @@ instruction *compiler(char *petlik, int length)
 	return m_code;
 }
 /* Sprawdza czy pętlę można zoptymalizować */
-bool optimal(int *i, char *petlik, int length)
+bool optimal(int *i, char *petlik, size_t length)
 {
 	int index = *i;
 	char arg = petlik[index - 1];
@@ -123,7 +123,7 @@ bool optimal(int *i, char *petlik, int length)
 	return false;
 }
 /* Kompiluje kod pętlika */
-int compile(int *i, int j, char *petlik, instruction *m_code, int length)
+int compile(int *i, int j, char *petlik, instruction *m_code, size_t length)
 {	
 	while (*i < length && petlik[*i] != ')') {
 		if(petlik[*i] == '(') {

@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -18,9 +19,9 @@ typedef struct {
 	int arg2;
 } inst;
 /* Funkcje kompilatora */
-inst *compiler(char *petlik, int length);
-bool optimal(int *i, char *petlik, int length);
-int compile(int *i, int j, char *petlik, inst *m_code, int length);
+inst *compiler(char *petlik, size_t length);
+bool optimal(int *i, char *petlik, size_t length);
+int compile(int *i, int j, char *petlik, inst *m_code, size_t length);
 /* Funkcje interpretera */
 var *init();
 void print(var a);
@@ -56,7 +57,7 @@ int main(void)
     return 0;
 }
 /* Zwraca kod programu przetłumaczony na język maszyny wirtualnej */
-inst *compiler(char *petlik, int length)
+inst *compiler(char *petlik, size_t length)
 {
 	inst *m_code = malloc((size_t)(length + 1) * sizeof(inst));
 	int index = 0;
@@ -65,7 +66,7 @@ inst *compiler(char *petlik, int length)
 	return m_code;
 }
 /* Sprawdza czy pętlę można zoptymalizować */
-bool optimal(int *i, char *petlik, int length)
+bool optimal(int *i, char *petlik, size_t length)
 {
 	int index = *i;
 	char arg = petlik[index - 1];
@@ -80,7 +81,7 @@ bool optimal(int *i, char *petlik, int length)
 	return false;
 }
 /* Kompiluje kod pętlika */
-int compile(int *i, int j, char *petlik, inst *m_code, int length)
+int compile(int *i, int j, char *petlik, inst *m_code, size_t length)
 {	
 	while (*i < length && petlik[*i] != ')') {
 		if(petlik[*i] == '(') {
